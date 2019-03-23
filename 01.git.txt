@@ -1,0 +1,276 @@
+git 代码协同管理工具
+
+代码管理工具
+*防止代码丢失，做备份
+*代码版本的管理，可以进行多个节点的备份，在多个版本之间跳跃
+*可以方便的将代码在多人之间进行共享传输
+*多人开发时有各种模式可以方便代码管理
+
+什么是git
+
+git是一个开源的分布式版本控制系统，可用于高效的管理大小项目。
+
+
+分布式和集中式
+
+分布式：每个节点都保存完成的代码，没有明确的中央服务器，节点之间项目推送下载代码完成代码共享
+
+集中式：代码集中管理，每次完成的代码上传到中央管理器，然后在统一从中央管理器下载代码使用
+
+git特点
+
+git可以管理各种文件，特别是代码项目，躲在*nix系统中使用
+是分布式管理，不同于集中式，
+git可以更好的支持分支，方便多人协同工作
+git分布式代码更安全，有全球唯一的commit版本号
+使用git可以脱网工作，且数据传输速度较快
+
+git 配置命令
+
+git config
+配置级别
+1.系统中所有的用户都可使用该配置
+命令：git config --system
+配置文件：/etc/gitconfig
+
+2.当前用户可使用该配置
+命令：git config --global
+配置文件: ~/.gitconfig
+
+3.当前项目可使用该配置
+命令:git config
+配置文件:project/.git/config
+
+配置内容
+1.配置用户名
+sudo git config --system user.name crdeli
+
+2.配置邮箱
+git config --global user.email crdeli@126.com
+
+3.配置编译器
+git config core.editor sublime
+
+4.查看配置
+
+git --list
+
+
+git 基本命令
+
+初始化仓库
+git init
+在某个目录下初始化仓库后会自动产生.git目录。该目录下工作的所有文档即可以使用git进行管理。
+
+查看分支状态
+git status
+默认工作分支为masster，可通过创建分支切换
+
+文件提交
+git add file
+
+将文件提交到暂存区
+提交内容可以是一个文件，多个文件用空格分开
+如果是*表示所有文件，也可以是目录
+
+
+删除暂存区文件提交记录
+git rm --cached file
+
+
+文件同步到本地仓库
+git commit -m‘add some message’
+
+同步时需要附加一些同步信息 在-m后添加
+所有对工作区的修改如果想同步到本地仓库都需要，add commit
+
+查看commit日志
+git log
+git log --pretty =oneline
+
+一些工作区命令
+查看本地文件和工作区差异
+git diff file
+
+恢复文件
+git checkout file
+
+丢弃工作区的修改
+git checkout -- file
+
+本地仓库文件的移动和删除
+移动文件
+git mv file dir
+
+删除文件
+git rm file
+用法和mv rm命令相同。操作后直接commit即可工作区和本地仓库同步
+
+
+版本控制命令
+
+回到之前版本
+git reset --hard HEAD^
+
+*HEAD后的^数量决定了回到上几个版本
+回到指定的版本
+git reset --hard 版本号（7位）
+
+
+去往更新的版本
+1.查看当前版本git log 
+ 
+查看历史版本git reflog
+git reflog会有所有的操作记录，最新的操作时钟在最上边
+
+
+标签管理
+
+什么是标签：在当前工作位置添加快照，保存工作状态，一般用于版本的迭代。
+
+创建新的标签
+git tag v1.0
+默认在最新的commit_id 处打标签
+git tag v1.0 -m “message”
+
+git tag v0.9 commit_id
+在指定commit打标签
+
+
+查看标签
+列出当前标签git tag
+显示标签具体信息git show v1.0
+
+删除标签
+git tag -d v1.0
+
+去往某个标签版本
+
+git reset --hard v0.9
+
+临时工作区
+主要是在比较不同方法时需要创建不同且并列的节点，有选择的选取后，保存为新的节点
+
+创建保存临时工作区并回复到节点干净的状态
+git stash
+
+查看临时工作区
+git stash list
+
+应用哪个工作区
+git stash apply stash@{1}
+
+
+应用上一个工作区并且删除
+git stash pop
+
+删除工作区
+git stash drop stash{0}
+git stash clear
+
+
+分支操作
+什么是分支
+分支即每个人获取原有代码，再次基础上创建自己的工作环境，单独开发，不会影响其他分支的操作。开发完成后再统一合并到主线分支中。
+
+分支的好处：安全，不影响其他人工作，自己控制进度
+
+查看当前分支
+git branch
+前面有*号的分支表示当前正在工作的分支
+git branch branchname
+
+切换工作分支
+git checkout branchname
+
+创建并切换到分支
+git checkout -b branchname
+
+
+合并分支
+git merge branchname
+
+合并过程中如果没有冲突则直接合并，合并后当前分支即为干净的状态
+如果产生冲突则需要人为选择然后再进行add，commit操作
+在创建分支前尽量保证当前分支是干净的，以减少冲突的发生
+
+删除分支
+git branch -d branchname
+
+强制删除没有合并的分支
+git branch -D branchname
+
+
+
+
+
+远程仓库
+	远程仓库：远程主机上的仓库。实际上git是分布式的，每一台主机的git结构都相似，只是把其他主机的git仓库叫做远程而已
+
+创建共享仓库
+1.创建文件夹
+mkdir gitrepo
+2.创建文件夹属主
+chown tarena:tarena gitrepo
+3.将该文件夹设置为可共享的git仓库
+cd gitrepo
+git init --bare fly.git
+4.设置本地仓库属主
+chown -R tarena： tarena fly.git
+
+添加远程仓库
+git remote add origin tarena@127.0.0.1：/home/tarena/gitrepo/fly.git
+默认使用ssh作为传输手段
+
+删除远程仓库
+git remote rm origin
+
+git push -u origin master
+第一次推送时需要 -U，以后就不需要了
+
+从远程仓库获取项目
+git clone tarena@127.0.0.1：/home/tarena/gitrepo/fly.git
+
+从远程仓库拉取分支或代码
+直接拉取远程分支和当前工作分支合并
+git pull origin dev_TOM
+
+拉取远程分支到本地，不合并
+git pull origin dev_TOM：dev_TOM
+	远程分支名	本地分支名
+
+代码推送和拉取
+
+将本地代码推送到连接的远程仓库
+git push
+
+git push --force origin(当本地版本比远程版本旧时用本地旧版本覆盖远程新版本)
+
+从远程仓库更新代码
+git pull
+git fetch（如果有新的分支拉取到本地不会和本地分支合并）
+
+github
+添加ssh秘钥
+1.在本机主机生成ssh密钥对
+	ssh-keygen
+	默认秘钥对存放在~/.ssh/下
+	生成过程会提示设置密码，如果直接回车则表示不设置密码
+
+2.进入~/.ssh复制 id_rsa.pub公钥内容
+3.登录github账号
+	右上角头像下拉菜单》settings》左侧SSH and GPG keys 》new ssh key >填写title，将复制内容加入key文本框点击add
+
+创建新的github仓库
+1.右上角+下拉菜单》new repository 》填写参考名和基本描述，根据情况选择是否添加readme等内容，选择共有或私有》点击创建
+
+操作github仓库
+1.git remote 连接远程github仓库如果需要输入密码输入github密码即可
+2.git push等操作操作远程仓库即可
+远程仓库地址：git@github.com:crdeli/notes.git（notes 即为远程仓库名称）
+
+
+
+
+
+
