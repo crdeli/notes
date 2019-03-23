@@ -1,0 +1,730 @@
+数据库 MongoDB
+
+程序 = 数据结构 + 算法
+
+数据存储的发展阶段
+
+文件管理阶段（open csv wexsl）python 操作用模块
+优点：	数据可以长期保存
+	能存储大量的数据
+	使用比较简单
+
+缺点：	数据一致性差
+	数据冗余度大
+	查找修改不方便
+
+数据库管理阶段
+
+优点：	数据组织结构化
+	冗余度小
+	容易扩充
+	查找效率高
+	方便使用程序自动处理
+
+缺点：	需要使用SQL语句等特定的语句处理，相对比较复杂
+
+几个概念
+
+数据：	能够输入到计算机中被识别处理的信息集合
+
+数据库：	按照数据组织结构，存储和管理数据的仓库。是在数据库管理系统管理和控制下存放在一定介质上的数据集合、
+
+数据库管理系统：管理数据库的软件，用于建立使用和维护数据库
+
+数据库系统：由数据库，数据库管理系统，开发工具等共同构成的集合概念
+
+
+关系型数据库
+
+采用关系模型来组织数据结构的数据库
+
+Oracle DB2 SQLServer MySql SqLite(Python 标准库支持)
+
+优点：	容易理解，类似我们常见的表格模型
+	使用方便，都是通过sql语句进行操作，sql语句是非常成熟的
+	易于维护，完整性好，数据一致性高，降低了冗余
+	技术成熟，可以使用外链接等比较复杂的操作
+	
+缺点：	无法很好的满足高并发需求，每次操作都需要sql语句，sql语句需要解析
+	针对海量数据的爆发在读写性能上显得不足，关系型数据库内部每一步操作为了保证原子性都会加锁
+	数据一致性高，在处理某些数据的情况是浪费资源
+	数据库扩展比非关系型数据库要复杂困难
+
+
+非关系型数据库 nosql （not only sql）
+优点： 	高并发，大数据下读写能力强
+	支持分布式，容易拓展
+	弱化了数据结构，降低了数据的一致性
+
+缺点：	没有join等复杂的操作
+	通用性差（不同的nosql数据库有不同的使用方法）
+	操作灵活即容易混乱
+	
+面试要求：	能够描述关系型和非关系型数据库的特点
+	关系型数据库:	第一范式：数据属性不可再分
+			第二范式；非主属性对于主属性的部分依赖
+			第三范式：非主属性间的互相依赖
+			第四范式：主属性对于主属性的部分依赖
+
+nosql的使用情况：
+
+1.数据模型简单灵活，一致性差
+2.对数据库的并发处理要求高
+3.数据库设计时无法准确估量大小，后期可能需要拓展
+4.给定的数据关系比较容易建立起键值模型
+
+nosql模型
+1.键值型数据库
+redis Oracle bdb tokyo
+2.列存储数据库
+HBase
+3.文档数据库
+MongoDB CouchDB
+4.图形数据库
+
+
+
+MongoDB
+1.是文档型非关系型数据库
+2.由C++编写的数据库
+3.支持丰富的查询操作
+4.支持众多编程语言（python c++ c#）
+5.使用方便，便于部署
+6.数据格式丰富
+7.支持分布式拓展
+
+安装
+
+sudo apt-get install mongodb
+
+默认安装位置 、/var/lib/mongodb
+配置文件  	       /etc/mongodb.conf
+命令集             /usr/bin
+
+
+手动安装
+
+1.下载monogodb安装包	
+2.选择安装目录（/usr/local   /opt）
+3.进入解压后的文件夹，将bin目录添加到环境变量
+PATH=$PATH:/usr/test/mongodb/bin/
+export PATH
+将这两句添加到linux自动执行脚本
+/etc/rc.local 	或者	/etc/bash.bashrc或其他自启动脚本
+
+4.重启系统
+source /etc/bash.bashrc
+
+5.设置数据库的存储位置
+sudo mkdir -p /data/db  
+mongod --dbpath /data/db 
+
+mongodb 端口号 27017
+设置端口号
+mongod --port 8888
+
+mongo
+
+mongo shell 表示进入到mongodb的交互模式 注意：javascript
+ 
+数据类型：字符串 整形 布尔型 浮点型 数组类型 时间类型 文档类型 空值null 字符串（symbol通常表示特殊字符） 时间戳 ObjectID 二进制 代码js 正则表达式
+
+mongodb 存储数据的一些概念
+
+mysql	mongo	含义
+database	database	数据库
+table	collection	表/集合
+column	field	字段/域
+row	document	记录/文档
+
+进入mongo shell ：mongo
+退出		：quit（）
+
+创建数据库
+use databasename实际的功能表示你选则使用哪个数据库，如果选择一个不存在的数据库则当向这个数据库插入数据时，数据库会自动创建
+
+查看当前数据库系统中的数据库
+show dbs
+
+数据库的命名规则：
+1.原则上是满足以下几条的任意UTF-8格式的字符串
+2.不能是“”字符
+3.不能含有 空格“ ”，点“.”,"/" "\" "\0"
+4.习惯上使用英文
+5.不应超过64字节
+6.不能使用admin local config
+
+admin：存储用户权限
+local：不会被复制，只能用于本机操作
+config：分片处理时存储分片信息
+
+db》一个数据库全局量 代表你当前正在使用的数据库
+
+db 默认表示test数据库
+
+数据库的备份和恢复
+
+备份 mongodump -h dbhost -d dbname -o dbdir 
+
+e.g mongodump -h 127.0.0.1 -d stu -o student
+将本机stu数据库备份到当前目录下的student文件夹
+
+恢复 mongorestore -h <hostname>:<port> -d dbname <path>
+e.g mongorestore -h 127.0.0.1:27017 -d test student/stu
+
+数据库的检测
+
+mongostat 
+insert（每秒插入次数） query（每秒查询次数） update（每秒更新次数） delete（每秒删除次数） getmore command（每秒运行命令次数） dirty used flushes（每秒向磁盘写入次数） vsize（使用虚拟内存情况）   res（使用武力内存情况） qrw arw net_in net_out conn
+
+mongotop 检测每个数据库的读写时长
+
+ns 数据表 total read 读时长 write 写时长
+
+删除数据库
+db.dropDatabase()
+
+创建集合
+db.createCollection(collection name)
+db.createCollection(“class”)
+
+查看集合
+show collections 或者 show tables
+
+集合的命名规则
+1.不能是空字符串
+2.不能含有“\0”
+3.不能以system.开头，这是系统集合的保留前缀
+4.集合不要和保留字重名不要包含$
+
+创建集合2
+当向一个集合中插入一条文档，如果这个集合不存在则自动创建
+db.collection_name.insert（）
+e.g db.class2.insert（{name :"bob",age:17,sew:"W"}）
+
+删除集合
+db.stu.drop()
+
+文档
+在mongodb中数据的组建形式
+由键值组成，类似python中的字典
+
+mongodb中数据文档为bson格式（类似于python字典，使用键值的方式保存和展示数据）
+bson———》JSON
+
+文档中键的命名规则
+
+1.utf-8格式的字符串
+2.不能为空"",不能有\0（习惯上不用.和￥）
+3.以_开头的很多都是保留的键，所以一般不用_开头
+
+注意：	文档中的键值对是有序的
+	文档中的值指的就是文档支持的数据类型
+	mongodb中区分大小写
+
+支持数据类型
+整形 	整数，32位整形
+布尔 	True False
+浮点型	存储小数
+Arrays	列表数组
+timestamp时间戳
+Date	时间日期
+Object 	内部文档
+Null	空值
+Symbol	特殊字符字符串
+Binary data二进制数据
+code 	代码
+regex	正则表达式
+ObjectId	ObjectId字串
+
+objectid：系统自动为每个文档生成的不重复的主键
+	键名称>_id
+	值>
+24为十六进制数 8文档创建时间 6机器ID 4进程ID 6计数器
+
+集合设计原则
+1.同一类文档存在一个集合中
+2.集合中尽量存储域和文档格式相近的文档
+3.集合中可以存在文档数据的差异
+
+插入文档
+db.collection_name.insert()
+e.g. db.class1.insert({name:"crdeli",age:29})
+*插入文档时域名可以不加引号
+
+插入多条文档
+e.g. db.class1.insert([{name:"crdeli",age:29},{name:"heihei",age:34}])
+
+_id 为系统定义主键值，如果使用系统值则保证不重复，如果自定义值即会覆盖系统值，但是自己也不能让该域重复
+
+save插入数据
+db.collection_name.save()
+
+如果不添加_id域的时候 同insert
+如果添加_id域的时候 同insert，改值如果不存在则正常插入，如果存在则修改原数据（完全替换）
+
+save不能插入多条文档
+
+db.collection_name ===== db.getCollection("")获取表对象
+
+db查找
+
+db.collection_name.find()
+db.collection_name.findOne() 查找符合条件的第一条文档
+
+find(query,field)
+功能：查找所有符合筛选要求的文档
+参数：query：筛选条件
+field：展示的域	0：不显示该域
+		1：显示该域
+1.以键值对的形式给每个域值赋值0,1表示是否有要显示该域
+2.如果给域设置为0，则其他域自动为1，如果给某个域设置为1，则其他的自动为0，两者不能混用
+3._id比较特殊，默认为1，如果不想显示则设置为0，_id为0时其他的可以为1。
+4.如果不写改参数，则表示显示所有域
+
+find（{}，{}）
+
+query：
+1.也是以键值的方式查找
+2.如果不写这个参数则表示查找所有文档
+db.class0.findOne({age:22},{_id:0})
+返回值：返回所有符合要求的文档
+
+query的更多用法
+比较操作符
+$eq
+db.class0.findOne({age:{$eq:22}},{_id:0})
+等价于db.class0.findOne({age:22},{_id:0})
+$ne不等于
+$lt
+$gt
+$gte
+$lte
+
+$in:[22,23,24]
+$nin
+
+逻辑操作符
+$and
+db.class0.findOne({age:22,sex:"m"},{_id:0})
+db.class0.findOne({$and:[{age:22},{sex:"m"}]},{_id:0})
+默认逗号分割多个条件即为逻辑与
+db.class0.findOne({age:{$gt:22,$lt:25},sex:"m"},{_id:0})
+$or
+db.class0.findOne({$or:[{age:22},{sex:"m"}]},{_id:0})
+db.class0.findOne({$or:[{age:{$lt:22},{age:{$gt:25}}]},{sex:"m"}]},{_id:0})
+
+$not 逻辑非
+
+$nor既不也不
+db.class0.findOne({$nor:[{age:18},{sex:"m"}]},{_id:0})
+
+条件混合
+年龄 小于20 或者姓名为阿荣 并且性别为女的人
+
+db.class0.find({$or:[{age:$lt20},{name:"阿荣"}],male:"f"})
+db.class0.find({$or:[{age:$lt20},{name:"阿荣",male:"f"}]})
+
+
+数组查找
+查找数组中包含多项的文档
+db.class1.find({hobby:{$all:[python,game]}},{_id:0})
+
+$size
+查找数组中项数为指定个数的文档
+db.class1.find({hobby:{$size:2},{_id:0})
+
+$slice
+db.class1.find({},{_id:0,hobby:{$slice:1}})
+db.class1.find({},{_id:0,hobby:{$slice[1,2]}})
+
+$exists
+判断一个域是否存在
+db.class1.find({sex:{$exists:true}},{_id:0})
+db.class1.find({sex:{$exists:false}},{_id:0})
+
+$mod
+通过整除余数进行查找
+db.class1.find(age:{$mod:[3,0]},{_id:0})
+
+$type
+查找值为指定数据类型的文档
+db.class1.find(age:{$type:1},{_id:0})
+
+和查询结果相关的几个函数
+
+distinct（）
+功能：查看一个集合中某个域的值所覆盖的范围,也可以查看一个列表域
+db1.class1.distinct("age")
+
+db.class0.findOne({age:22,sex:"m"},{_id:0}).pretty()
+将查询结果格式化显示
+
+limit（n）
+查询结果显示前n个文档
+
+skip（n）
+跳过前n条文档进行显示
+
+
+对查询结果进行计数
+db.class0.findOne({age:22,sex:"m"},{_id:0}).count（）
+
+.sort（）
+按照指定的字段进行排序 
+.sort({age:1})升序
+.sort({age:-1})降序
+
+复合排序
+.sort({age:1,name:-1})
+
+
+删除文档
+db.collection_name.remove(query,justOne)
+功能：删除文档
+参数：query 定位要删除的文档数据 类似sql where 子句用法和查找相同
+
+	justOne：给bool默认false 表示删除所有符合条件的数据文档
+	如果赋值为true则表示删除第一条符合条件的文档
+
+删除所有不包含sex域的文档
+db.class0.remove({sex:{$exists:false}})
+删除age为22的文档中的第一条
+db.class0.remove({age:22},true)
+删除集合中所有的文档
+db.collection_name.remove({})
+
+
+1.创建一个数据库，名字为grade
+2.数据库中创建集合名字为class
+3.集合中插入若干文档，文档格式为
+{name：“小红”，age：10，sex：“f”，hobby：["a","b","c"]}
+
+4.查找联系
+查看改版所有学生信息
+产看班级中年龄为5岁的学生信息
+查看年龄大于6岁的学生信息
+查看年龄在4-8岁之间的学生
+
+查看年龄是4岁并且为男生的学生
+查看年龄小于4岁或者大于8岁的学生
+产看年龄是4岁或者6岁的学生
+
+查看兴趣爱好有2项的学生
+产看兴趣爱好有画画的学生
+查看兴趣爱好既喜欢画画又喜欢跳舞的学生
+统计兴趣有三项的学生人数
+
+查看本班年龄第二大的学生
+
+将学生年龄按照升序 姓名按照降序排序
+统计学生兴趣的范围
+删除所有年龄小于4岁的男生
+
+
+更新文档
+db.collection_name.update(query,update,upsert,multi)
+功能：更新一个文档
+参数：query：定位要更新的数据相当于where
+用法同查找
+Update：将数据更新为什么，相当于set 需要配合操作符来使用
+Upsert：bool值，默认为false，表示当定位的文档不存在则无法修改。如果设置为True，表示如果定位的文旦不存在则插入这条文档
+Multi：bool值，默认为false如果query匹配的文档有多条则只修改第一条，如果设置为True，则修改所有匹配到的文档
+e.g
+Db.class0.update({name:”aaa”},{$set :{age:19}})
+
+Update
+
+修改器：将数据修改为什么
+$set
+修改一个值
+e.g
+Db.class0.update({name:”aaa”},{$set{age:18,sex:”m”}})
+Set同时有增加一个域的作用
+
+$unset
+删除一个域
+Db.class0.update({name:”aaa”},{$unset :{age:1}})数字无所谓，但习惯写1代表True
+
+$rename
+修改一个域的名称
+Db.class0.update({},{$rename :{sex:’gender’}})必须加引号
+Db.class0.update({},{$rename :{sex:’gender’}}，false，true)多项修改
+
+$inc
+对某个域的值进行加减修改
+Db.class0.update({name:”a”},{$inc:{age:1}})
+Db.class0.update({name:”a”},{$inc:{age:-1}})
+
+$mul
+对某个域的值进行乘法修改
+Db.class0.update({name:”a”},{$mul:{age:2}})
+Db.class0.update({name:”a”},{$mul:{age:0.5}})
+
+$min
+设定最小值，如果query到的文档指定域值小于min值则不做修改
+如果大于指定min值则修改成min值
+$max
+设定最大值，如果query到的文档指定域值大于max值则不做修改
+如果小于指定max值则修改为max值
+
+
+修改器可以一起使用
+db.class0.update({name:”aaa”},{$inc{age:2},$set:{gender:”w”}})
+
+数组修改器
+$push 向数组中添加一项，允许添加内容重复
+db.class1.update({name:”aa”},{$push:{hobby:”computer”}}) 键可不加引号，但值针对str类型必须加
+
+$pushAll
+db.class1.update({name:”aa”},{$pushAll:{hobby:[”computer”,”python”]}})
+
+$each
+db.class1.update({name:”aa”},{$push:{hobby:{$each:[“aa”,”bbb”]}}})
+
+$pull 从数组中删除一项
+db.class1.update({name:”aa”},{$pull:{hobby:”computer”}})
+
+$pullAll从数组中删除多个元素
+db.class1.update({name:”aa”},{$pushAll:{hobby:[”computer”,”python”]}})
+
+$pop 从数组的两端弹出元素
+db.class1.update({name:”aa”},{$pop:{hobby:1}})弹出最后一项
+db.class1.update({name:”aa”},{$pop:{hobby:-1}})弹出第一项
+
+
+$addToSet 向数组中添加一个元素，该元素不能和其他元素重复
+db.class1.update({name:”aa”},{$addToSet:{hobby:”computer”}})
+
+Null
+1.某个域如果没有值却存在则可以设置为null
+2.表示某个域不存在也能够进行匹配
+db.class1.insert({name:”aa”,age:null})
+
+文档类型数据
+
+外部文档的域引用内部文档的域通过.的方法逐层引用，在使用时需要加引号
+
+查找内部文档title值为python web
+Db.book.find({‘python.title’:”python web”})
+Db.book.update({“python.title”:”python web”},{$set:{“python.price”:40.8}})
+
+数组数据的下标引用
+Db.class.find({‘hobby.0’:’song’})
+Db.book.update({name:’aa’},{$set:{‘hobby.0’:’song’}})
+
+文档有序性的体现
+通过[]的方式即可以取得查询结果中的第几项
+Db.class.find({},{_id:0})[1]
+
+索引：指的是建立指定键值及所在文档中的存储位置对照关系清单。使用索引可以方便我们快速查找，减少遍历次数，提高效率。
+
+创建索引：ensureIndex（）
+功能：创建索引
+参数：提供索引的类别选项
+1表示为该域创建正向索引 ，-1表示逆向索引
+Db.class0.ensureIndex({‘name’:1})
+
+查看当前索引
+db.class0.getIndexes()
+
+系统自动为_id创建索引
+
+创建复合索引（同时根据多个域创建索引）
+
+删除索引
+
+db.collection_name.dropIndex()
+功能：删除一个索引
+参数：索引的名称
+
+db.class.dropIndex({name:1})
+
+删除所有索引
+db.collection_name.dropIndexes()
+
+.explain()：显示详细的查找操作信息
+Db.class1.find({name:’aa’}).explain()
+
+索引类型:
+
+数组索引:如果对某个数组域创建索引，则对数组中的每个值均创建了索引。通过数组中的单个值查询也会提高速度
+子文档索引：某个域值为文档，对其子文档创建索引，则加快通过子文档进行查找的查找速度
+Db.class1.ensureIndex({‘python.price’:1})
+
+唯一索引：唯一索引创建时希望创建索引的域有不同的值
+Db.class1.ensureIndex({name:1},{unique:true})
+
+创建索引时指定域的值不能有重复，创建后插入也不允许插入重复的值
+
+覆盖索引
+查找时，只获取索引项的内容，而不去连接其他文档内容。这样从索引表就可以得到查询结果，提高了查询效率。
+索引为name 查找项也为name
+Db.class0.find({name:’宝强’}，{_id:0,name:1})
+
+稀疏索引（间隙索引）
+只针对有指定域的文档创建索引表，没有该域的文档不插入的索引表中。
+Db.class1.ensureIndex({name:1},{sparse:true})
+
+文本索引
+使用文本索引可以快速进行文本检索，这在较长的字符串搜索中比较有用
+
+1.创建文本索引
+Db.class2.ensureIndex({msg:’text’,description:’text’})
+2.创建单词进行索引搜索（多个单词用空格隔开，如果有其中任意一个单词就会被搜索）
+Db.class2.find({$text:{$search:’old beautiful’}})
+
+3.搜索包含空格的语句 要用转义字符
+Db.class2.find({$text:{$search:”\”city is\””}})
+
+4.包含old 不包含beautiful
+Db.class2.find({$text:{$search:’old -beautiful’}})
+
+删除文本索引
+先getIndexes（）
+再按照名字删除
+
+索引约束
+1.影响插入 删除 修改数据的效率。当数据发生修改时，索引必须同步更新
+2.索引也占有一定的空间，所以当数据量比较小时不适宜创建索引
+并不是所有都适合创建索引或者创建大量索引
+
+固定集合
+
+Mongodb中可以创建大小固定的集合，称之为固定集合，固定集合性能出色且适用于于很多场景
+比如：日志处理，临时缓存
+
+特点：插入数据快，
+顺序查询速度快
+能够淘汰早期的数据
+
+创建固定集合
+Db.createCollection(collection_name,{capped:true,size:10000,max:1000})
+capped:true代表创建固定集合
+Size:表示设置的固定集合的大小，单位为KB
+Max：表示设置的固定集合的最大文档数
+
+聚合
+对数据文档进行整理统计
+Db.collection_name.aggregate（）
+功能：聚合函数，配合聚合条件进行数据整理
+聚合操作符
+$group 分组 按照什么分组由具体的分组操作符而定
+$sum 求和
+$avg
+Db.class0.find({},{})
+Db.class0.aggregate({$group:{_id:’$gender’,num:{$sum:1}}})
+聚合统计  分组    按照哪个域分组  统计结果域名
+Db.class0.aggregate({$group:{_id:’$gender’,num:{$sum:’$age’}}})
+
+$min 求最小值
+$max
+$first
+$last
+
+聚合操作符
+$project 用于修饰文档的显示结构
+Db.class0.aggregate({$project:{_id:0,name:1,age:1}})
+Db.class0.aggregate({$project:{_id:0,Name:’$name’,Age:’$age’}})
+
+$match 过滤数据
+值和query部分一样
+Db.class0.aggregate({$match:{age:{$lt:18}}})
+
+$limit 显示前几条数据
+值为一个正数
+Db.class0.aggregate({$limit:3})
+
+$skip 跳过几条数据
+Db.class0.aggregate({$skip:2})
+
+$sort 排序
+Db.class0.aggregate({$sort:{age:1}})
+
+聚合管道
+前一个聚合操作的结果给后一个聚合操作执行
+
+格式：将多个聚合才做放到一个[]中
+
+Db.class0.aggregate([$match:{‘gender’:’w’},{$sort:{age:1},{$project:{_id:0}}}])
+
+
+
+GridFS 大文件存储
+文件的数据库存储
+1.在数据库中以字符串的方式存储文件在本地的路径
+优点：节省数据库空间
+缺点：当数据库或者文件位置发生变化时即无法找到文件
+
+2.将文件以二进制数据的方式存储在数据库中
+优点：文件和数据库绑定
+缺点：当存储文件大时，空间使用大，提取困难
+
+GridFS：是mongodb当中存储大文件的一种方案，mongodb中认为超过16M的文件为大文件
+
+将文件存储在mongodb数据库中，通过两个集合共同完成该文件的存储
+
+fs.files:存储文件的相关信息 比如文件名filename文件类型content_type
+fs.chunks:实际存储文件内容，以二进制方式分块存储。将大文件分成多个小块，每个小块占一条文档。
+mongofiles -d grid put abc.mp3
+提取文件
+mongofiles -d grid get file
+
+1.查看文件信息
+Db.fs.files.find()
+3.查看具体文件内容
+Db.fs.chunks.find({files_id:ObjectId(‘xxxx’)})
+
+Fs.chunks的域_id
+Files_id:值为对应文件在fs.files集合中的文档_id值
+n分块信息
+Data具体文件内容
+优缺点
+优点：存储方便 没有文件个数限制 方便移植
+缺点：读写效率低 只能整体修改不能分块更新
+
+游标 cursor
+
+通过获取操作数据库的返回结果，得到返回结果对象。
+通过游标可以进一步获取操作结果数据。
+
+将返回结果赋给一个js变量，作为查找结果游标
+var cursor =db.class0.find()
+
+获取下一结果
+cursor.next（）
+
+python -->pymongo模块
+
+操作步骤
+1.创建mongodb的数据库连接对象
+
+conn = pymongo.MongoClient('localhost',27017)
+
+2.生成数据库对象
+db = conn.stu
+db = conn['stu']
+
+3.生成集合对象
+myset = db.class0
+myset = db['class0']
+
+4.集合操作（增删改查索引聚合）
+
+
+5.关闭数据库连接
+conn .close()
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
